@@ -4,6 +4,7 @@
 import urllib3
 import requests
 from bs4 import BeautifulSoup
+import re
 
 
 def openPage(link):
@@ -12,11 +13,11 @@ def openPage(link):
     HEADERS = ({'User-Agent':
                     'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
                 'Accept-Language': 'en-US, en;q=0.5'})
-    page = requests.get(link, headers = HEADERS)
+    page = requests.get(link, headers=HEADERS)
     return page.content
 
 
-def searchPage(html_data):
+def searchPageAmazon(html_data):
     soup = BeautifulSoup(html_data, "html.parser")
     # print(soup.prettify())
 
@@ -25,16 +26,27 @@ def searchPage(html_data):
     return price
 
 
+def searchPageNewegg(html_data):
+    soup = BeautifulSoup(html_data, "html.parser")
+    x = str(soup.find_all('strong'))
+    m = re.search(r"\d", x)
+    start = m.start()
+    end = 0
+    for i in range(4):
+        if x[start + i].isdigit():
+            end += 1
+
+    price = x[start:start + end]
+    # print(x)
+    # title = soup.find(id='monetate_selector').get_text().strip()
+    # price = soup.find(class='price-current-label').get_text().strip()
+    return price
+
+
 if __name__ == "__main__":
-    url = "https://www.amazon.com/HIFIMAN-SUNDARA-Over-Ear-Full-Size-Headphones/dp/B077XDWT7X/ref=sr_1_3?crid=Q7WCFZVGDEZN&dchild=1&keywords=hifiman+sundara&qid=1609349445&sprefix=hifiman%2Caps%2C176&sr=8-3"
+    url = "https://www.newegg.com/g-skill-16gb-288-pin-ddr4-sdram/p/N82E16820232866?Description=trident%20z%20neo" \
+          "&cm_re=trident_z%20neo-_-20-232-866-_-Product "
     data = openPage(url)
     # print(data)
-    x = searchPage(data)
+    x = searchPageNewegg(data)
     print(x)
-
-
-
-
-
-# page = requests.get("https://www.amazon.com/ASUS-Advanced-Overclocked-Graphics-ROG-STRIX-RTX-2080S-A8G/dp/B07VFKM4VQ/=8-2/", headers = HEADERS)
-
