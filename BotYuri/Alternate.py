@@ -5,7 +5,7 @@ HEADERS = ({'User-Agent':
                 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
             'Accept-Language': 'en-US, en;q=0.5'})
 
-
+"""gets all the prices with the names of the products as a dictionary on a newegg search page"""
 def get(link):
     page = requests.get(link, headers=HEADERS).content
     soup = BeautifulSoup(page, features='lxml')
