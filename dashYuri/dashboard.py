@@ -39,7 +39,7 @@ def checkPrice(link, amount, site):
             subject = "New Price Drop"
             body = "Please view the attachment below"
             sender_email = "mailingtester69@gmail.com"
-            receiver_email = "ldwong20@gmail.com"
+            receiver_email = "lacwang1032@gmail.com"
             # password = str(input("Type your password and press enter:"))
 
             # Create a multipart message and set headers
@@ -90,7 +90,7 @@ def checkPrice(link, amount, site):
             subject = "New Price Drop"
             body = "Please view the attachment below"
             sender_email = "mailingtester69@gmail.com"
-            receiver_email = "ldwong20@gmail.com"
+            receiver_email = "lacwang1032@gmail.com"
             # password = str(input("Type your password and press enter:"))
 
             # Create a multipart message and set headers
