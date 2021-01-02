@@ -26,6 +26,15 @@ def searchPageAmazon(html_data):
     return price
 
 
+def inStockAmazon(html_data):
+    # returns boolean indicating in stock or not
+    soup = BeautifulSoup(html_data, "html.parser")
+    if soup.find(id='priceblock_ourprice') is None:
+        return False
+    else:
+        return True
+
+
 def searchPageNewegg(html_data):
     soup = BeautifulSoup(html_data, "html.parser")
     x = str(soup.find_all('strong'))
@@ -44,8 +53,9 @@ def searchPageNewegg(html_data):
 
 
 if __name__ == "__main__":
-    url = "https://www.amazon.com/dp/B07SXMZLPK/ref=nav_timeline_asin?_encoding=UTF8&psc=1"
+    url = "https://www.amazon.com/MSI-MPG-B550-Motherboard-Processors/dp/B089CQFHHZ/ref=sr_1_1?dchild=1&keywords=b550" \
+          "+gaming+edge&qid=1609120972&sr=8-1 "
     data = openPage(url)
     # print(data)
-    x = searchPageAmazon(data)
+    x = inStockAmazon(data)
     print(x)

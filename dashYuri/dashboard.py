@@ -11,7 +11,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from BotYuri.search import openPage, searchPageAmazon, searchPageNewegg
+from BotYuri.search import openPage, searchPageAmazon, searchPageNewegg, inStockAmazon
 
 item1 = {}
 item2 = {}
@@ -37,7 +37,7 @@ def checkPrice(link, amount, site):
             # send notification
 
             subject = "New Price Drop"
-            body = "Please view the attachment below"
+            body = "Please view the attachment below\n\n" + link + " is below " + "$" + str(amount)
             sender_email = "mailingtester69@gmail.com"
             receiver_email = "lacwang1032@gmail.com"
             # password = str(input("Type your password and press enter:"))
@@ -88,7 +88,7 @@ def checkPrice(link, amount, site):
             # send notification
 
             subject = "New Price Drop"
-            body = "Please view the attachment below"
+            body = "Please view the attachment below\n\n" + link + " is below " + "$" + str(amount)
             sender_email = "mailingtester69@gmail.com"
             receiver_email = "lacwang1032@gmail.com"
             # password = str(input("Type your password and press enter:"))
@@ -137,6 +137,55 @@ def checkPrice(link, amount, site):
     return prices
 
 
+def inStock(link, site):
+    data = openPage(link)
+
+    if site.lower() == 'amazon' and inStockAmazon(data):
+        # send notification
+
+        sender_email = "mailingtester69@gmail.com"
+        receiver_email = "lacwang1032@gmail.com"
+
+        message = MIMEMultipart("alternative")
+        message["Subject"] = "Item is now in stock"
+        message["From"] = sender_email
+        message["To"] = receiver_email
+
+        # Create the plain-text and HTML version of your message
+        text = """\
+        Hi,
+        
+        your item is now in stock at:""" + link
+        html = """\
+        <html>
+          <body>
+            <p>Hi,<br>
+               <br>
+               <a href=""" + link + """">Link</a> 
+               is where your item can be found.
+            </p>
+          </body>
+        </html>
+        """
+
+        # Turn these into plain/html MIMEText objects
+        part1 = MIMEText(text, "plain")
+        part2 = MIMEText(html, "html")
+
+        # Add HTML/plain-text parts to MIMEMultipart message
+        # The email client will try to render the last part first
+        message.attach(part1)
+        message.attach(part2)
+
+        # Create secure connection with server and send email
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(sender_email, password)
+            server.sendmail(
+                sender_email, receiver_email, message.as_string()
+            )
+
+
 while True:
     """loop to calculate and graph prices"""
 
@@ -148,20 +197,41 @@ while True:
     ax1.set_xlabel('Date/Time')
     ax1.set_title('Tracking prices by date')
 
+    """add items to track for in stock"""
+    inStock('https://www.amazon.com/MSI-MPG-B550-Motherboard-Processors/dp/B089CQFHHZ/ref=sr_1_1?dchild=1&keywords'
+            '=b550+gaming+edge&qid=1609120972&sr=8-1', 'amazon')
     """add items to create a dictionary using checkPrice function"""
     a, b = zip(*sorted(checkPrice(
         'https://www.newegg.com/black-fractal-design-meshify-c-dark-tg-atx-mid-tower/p/N82E16811352072#',
-        300.0, 'newegg').items()))
+        71.0, 'newegg').items()))
     item1[a] = b
     a, b = zip(*sorted(checkPrice(
         'https://www.amazon.com/Crucial-Ballistix-Desktop-Gaming-BL2K8G32C16U4B/dp/B083TRRT16',
-        50.0, 'amazon').items()))
+        51.0, 'amazon').items()))
     item2[a] = b
     a, b = zip(*sorted(checkPrice(
         'https://www.newegg.com/corsair-16gb-288-pin-ddr4-sdram/p/N82E16820236551?Description=vengeance%20rgb%20pro'
         '&cm_re=vengeance_rgb%20pro-_-20-236-551-_-Product&quicklink=true',
-        70.0, 'newegg').items()))
+        71.0, 'newegg').items()))
     item3[a] = b
+    a, b = zip(*sorted(checkPrice(
+        'https://www.amazon.com/NZXT-H510-Management-Water-Cooling-Construction/dp/B07TC76671/ref=sr_1_2?dchild=1'
+        '&keywords=h510&qid=1609119370&sr=8-2&th=1',
+        65.0, 'amazon').items()))
+    item4[a] = b
+    a, b = zip(*sorted(checkPrice(
+        'https://www.newegg.com/msi-b550m-pro-vdh-wifi/p/N82E16813144331',
+        106.0, 'newegg').items()))
+    item5[a] = b
+    a, b = zip(*sorted(checkPrice(
+        'https://www.amazon.com/dp/B089DNM8LR?tag=pcpapi-20&linkCode=ogi&th=1&psc=1',
+        86.0, 'amazon').items()))
+    item6[a] = b
+    a, b = zip(*sorted(checkPrice(
+        'https://www.amazon.com/Vetroo-Cooler-Processor-Universal-Addressable/dp/B08F21X2VP/ref=sr_1_2?dchild=1'
+        '&keywords=vetroo%2Bair%2Bcooler&qid=1609119624&s=electronics&sr=1-2&th=1',
+        26.0, 'amazon').items()))
+    item7[a] = b
 
     """plot dictionaries"""
     x, y = zip(*sorted(item1.items()))
@@ -172,6 +242,18 @@ while True:
 
     x, y = zip(*sorted(item3.items()))
     plt.plot(x, y, label="Corsair RAM (~70)")
+
+    x, y = zip(*sorted(item4.items()))
+    plt.plot(x, y, label="NZXT Case (~65)")
+
+    x, y = zip(*sorted(item5.items()))
+    plt.plot(x, y, label="MSI Motherboard (~105)")
+
+    x, y = zip(*sorted(item6.items()))
+    plt.plot(x, y, label="Crucial P2 SSD (~85)")
+
+    x, y = zip(*sorted(item7.items()))
+    plt.plot(x, y, label="Vetroo V5 Cooler(~25)")
 
     plt.legend(loc="lower left")
     plt.savefig('graph.pdf', bbox_inches='tight')
